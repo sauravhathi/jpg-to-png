@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="jszip.min.js"></script>
+    <title>JPG to PNG</title>
+  </head>
+  <body>
+    <div class="container mx-auto">
+      <div
+        class="flex flex-col justify-center gap-4 h-screen w-9/12 mx-auto md:w-4/12"
+      >
+        <h1 class="text-4xl text-center font-bold my-4">JPG to PNG</h1>
+        <p class="text-center">
+          This tool converts JPG, JPEG images to PNG format. Bulk conversion is
+          also supported.
+        </p>
+        <label
+          for="file"
+          class="border-2 border-blue-500 px-20 py-20 rounded-lg shadow-sm tracking-wide cursor-pointer hover:shadow-lg hover:bg-blue-500 hover:text-white flex flex-col justify-center items-center"
+        >
+          <input
+            type="file"
+            id="file"
+            accept="image/*"
+            class="hidden"
+            multiple
+          />
+          <img
+            src="https://img.icons8.com/ios/50/000000/upload.png"
+            class="w-10 h-10 cursor-pointer"
+          />
+          <p class="text-center">Upload</p>
+        </label>
+        <button
+          id="convert"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Convert
+        </button>
+        <div id="download" class="flex flex-col items-center"></div>
+        <footer
+        class="text-center my-2 border-t-2 border-gray-200 pt-4"
+        id="checkAuthor"
+      >
+        <p class="text-sm">
+          Made with ❤️ by
+          <a href="https://github.com/sauravhathi" class="font-semibold"
+            >@sauravhathi</a
+          >
+        </p>
+      </footer>
+      </div>
+    </div>
+  </body>
+  <script>
+    const file = document.getElementById("file");
+    const convert = document.getElementById("convert");
+    const download = document.getElementById("download");
+
+    // Convert to PNG
+    convert.addEventListener("click", () => {
+      if (file.files.length == 0) {
+        alert("Please select a file");
+        return;
+      }
+
+      // for bulk conversion of images to png
+      if (file.files.length > 1) {
+        const zip = new JSZip();
+        for (let i = 0; i < file.files.length; i++) {
+          // File reader to read the file
+          const reader = new FileReader();
+          reader.readAsDataURL(file.files[i]);
+          reader.onload = () => {
+            const img = new Image();
+            img.src = reader.result;
+            img.onload = () => {
+              const canvas = document.createElement("canvas");
+              canvas.width = img.width;
+              canvas.height = img.height;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0);
+              const dataURL = canvas.toDataURL("image/png");
+              zip.file(
+                file.files[i].name.replace(/jpg|jpeg/i, "png"),
+                dataURL.split(",")[1],
+                { base64: true }
+              );
+              if (i === file.files.length - 1) {
+                zip.generateAsync({ type: "blob" }).then((content) => {
+                  download.innerHTML = `
+                                <a href="${URL.createObjectURL(
+                                  content
+                                )}" download="${
+                    file.files[0].name.split(".")[0]
+                  }.zip" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Download</a>
+                                `;
+                });
+              }
+            };
+          };
+        }
+      }
+      // for single image conversion to png
+      else {
+        const reader = new FileReader();
+        reader.readAsDataURL(file.files[0]);
+        reader.onload = () => {
+          // Image object to convert to canvas and then to png format using canvas toDataURL method and then download it
+          const img = new Image();
+          img.src = reader.result;
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            const dataURL = canvas.toDataURL("image/png");
+            download.innerHTML = `
+                        <a href="${dataURL}" download="${file.files[0].name.replace(
+              /jpg|jpeg/i,
+              "png"
+            )}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Download</a>
+                    `;
+            download.classList.remove("hidden");
+          };
+        };
+      }
+    });
+
+    const checkAuthor = document.getElementById("checkAuthor");
+    if (checkAuthor.children[0].children[0].textContent === "@sauravhathi") {
+    } else {
+      window.location.href = "https://github.com/sauravhathi";
+    }
+  </script>
+</html>
