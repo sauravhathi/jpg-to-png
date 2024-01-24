@@ -29,6 +29,7 @@ Clone the project
 Go to the project directory
 
 ```bash
-  cd jpg-to-png
+  cd jpg_to_png
+
 ```
 
