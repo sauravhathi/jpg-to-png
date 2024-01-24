@@ -51,60 +51,43 @@
     </div>
   </body>
   <script>
-    const file = document.getElementById("file");
-    const convert = document.getElementById("convert");
-    const download = document.getElementById("download");
+  const file = document.getElementById("file");
+  const convert = document.getElementById("convert");
+  const download = document.getElementById("download");
 
-    // Convert to PNG
-    convert.addEventListener("click", () => {
-      if (file.files.length == 0) {
-        alert("Please select a file");
-        return;
-      }
+  // Function to display a notification
+  function showNotification(message) {
+    const notification = document.createElement("div");
+    notification.classList.add("notification", "bg-green-500", "text-white", "p-3", "my-2", "rounded");
+    notification.textContent = message;
+    document.body.appendChild(notification);
 
-      // for bulk conversion of images to png
-      if (file.files.length > 1) {
-        const zip = new JSZip();
-        for (let i = 0; i < file.files.length; i++) {
-          // File reader to read the file
-          const reader = new FileReader();
-          reader.readAsDataURL(file.files[i]);
-          reader.onload = () => {
-            const img = new Image();
-            img.src = reader.result;
-            img.onload = () => {
-              const canvas = document.createElement("canvas");
-              canvas.width = img.width;
-              canvas.height = img.height;
-              const ctx = canvas.getContext("2d");
-              ctx.drawImage(img, 0, 0);
-              const dataURL = canvas.toDataURL("image/png");
-              zip.file(
-                file.files[i].name.replace(/jpg|jpeg/i, "png"),
-                dataURL.split(",")[1],
-                { base64: true }
-              );
-              if (i === file.files.length - 1) {
-                zip.generateAsync({ type: "blob" }).then((content) => {
-                  download.innerHTML = `
-                                <a href="${URL.createObjectURL(
-                                  content
-                                )}" download="${
-                    file.files[0].name.split(".")[0]
-                  }.zip" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Download</a>
-                                `;
-                });
-              }
-            };
-          };
-        }
-      }
-      // for single image conversion to png
-      else {
+    // Remove the notification after 3 seconds
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+
+  // Event listener for file upload
+  file.addEventListener("change", () => {
+    showNotification("Image(s) uploaded successfully!");
+  });
+
+  // Convert to PNG
+  convert.addEventListener("click", () => {
+    if (file.files.length == 0) {
+      alert("Please select a file");
+      return;
+    }
+
+    // for bulk conversion of images to png
+    if (file.files.length > 1) {
+      const zip = new JSZip();
+      for (let i = 0; i < file.files.length; i++) {
+        // File reader to read the file
         const reader = new FileReader();
-        reader.readAsDataURL(file.files[0]);
+        reader.readAsDataURL(file.files[i]);
         reader.onload = () => {
-          // Image object to convert to canvas and then to png format using canvas toDataURL method and then download it
           const img = new Image();
           img.src = reader.result;
           img.onload = () => {
@@ -114,22 +97,58 @@
             const ctx = canvas.getContext("2d");
             ctx.drawImage(img, 0, 0);
             const dataURL = canvas.toDataURL("image/png");
-            download.innerHTML = `
-                        <a href="${dataURL}" download="${file.files[0].name.replace(
-              /jpg|jpeg/i,
-              "png"
-            )}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Download</a>
-                    `;
-            download.classList.remove("hidden");
+            zip.file(
+              file.files[i].name.replace(/jpg|jpeg/i, "png"),
+              dataURL.split(",")[1],
+              { base64: true }
+            );
+            if (i === file.files.length - 1) {
+              zip.generateAsync({ type: "blob" }).then((content) => {
+                download.innerHTML = `
+                  <a href="${URL.createObjectURL(
+                    content
+                  )}" download="${file.files[0].name.split(".")[0]}.zip" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Download</a>
+                `;
+                showNotification("Image(s) converted successfully!");
+              });
+            }
           };
         };
       }
-    });
-
-    const checkAuthor = document.getElementById("checkAuthor");
-    if (checkAuthor.children[0].children[0].textContent === "@sauravhathi") {
-    } else {
-      window.location.href = "https://github.com/sauravhathi";
     }
-  </script>
+    // for single image conversion to png
+    else {
+      const reader = new FileReader();
+      reader.readAsDataURL(file.files[0]);
+      reader.onload = () => {
+        // Image object to convert to canvas and then to png format using canvas toDataURL method and then download it
+        const img = new Image();
+        img.src = reader.result;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          const dataURL = canvas.toDataURL("image/png");
+          download.innerHTML = `
+            <a href="${dataURL}" download="${file.files[0].name.replace(
+              /jpg|jpeg/i,
+              "png"
+            )}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Download</a>
+          `;
+          download.classList.remove("hidden");
+          showNotification("Image(s) converted successfully!");
+        };
+      };
+    }
+  });
+
+  const checkAuthor = document.getElementById("checkAuthor");
+  if (checkAuthor.children[0].children[0].textContent === "@alihamza372") {
+  } else {
+    window.location.href = "https://github.com/alihamza372";
+  }
+</script>
+      
 </html>
