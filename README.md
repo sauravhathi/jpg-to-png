@@ -23,7 +23,7 @@ This tool converts JPG, JPEG images to PNG format. Bulk conversion is also suppo
 Clone the project
 
 ```bash
-  git clone https://github.com/sauravhathi/jpg-to-png.git
+  git clone https://github.com/alihamza372/Image-converter_jpg-to-png.git
 ```
 
 Go to the project directory
